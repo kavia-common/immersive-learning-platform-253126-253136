@@ -16,6 +16,11 @@ import Discussions from '../pages/learn/Discussions';
 import Assignments from '../pages/learn/Assignments';
 import Quizzes from '../pages/learn/Quizzes';
 import Certificates from '../pages/learn/Certificates';
+import InstructorDashboard from '../pages/instructor/InstructorDashboard';
+import CreateCourse from '../pages/instructor/CreateCourse';
+import ManageCourse from '../pages/instructor/ManageCourse';
+import ContentBuilder from '../pages/instructor/ContentBuilder';
+import Gradebook from '../pages/instructor/Gradebook';
 
 const Placeholder = ({ title, desc }) => (
   <Card className="card" style={{ padding: 16 }}>
@@ -104,14 +109,50 @@ export function RoutesRoot() {
           </AuthGuard>
         }
       />
+
+      {/* Instructor routes (protected by role) */}
       <Route
         path="/instructor"
         element={
-          <RoleGuard roles={['instructor', 'admin']}>
-            <Placeholder title="Instructor" desc="Instructor tools placeholder." />
+          <RoleGuard roles={['instructor', 'admin']} fallback="/learn">
+            <InstructorDashboard />
           </RoleGuard>
         }
       />
+      <Route
+        path="/instructor/create"
+        element={
+          <RoleGuard roles={['instructor', 'admin']} fallback="/learn">
+            <CreateCourse />
+          </RoleGuard>
+        }
+      />
+      <Route
+        path="/instructor/manage/:id"
+        element={
+          <RoleGuard roles={['instructor', 'admin']} fallback="/learn">
+            <ManageCourse />
+          </RoleGuard>
+        }
+      />
+      <Route
+        path="/instructor/content/:id"
+        element={
+          <RoleGuard roles={['instructor', 'admin']} fallback="/learn">
+            <ContentBuilder />
+          </RoleGuard>
+        }
+      />
+      <Route
+        path="/instructor/gradebook/:id"
+        element={
+          <RoleGuard roles={['instructor', 'admin']} fallback="/learn">
+            <Gradebook />
+          </RoleGuard>
+        }
+      />
+
+      {/* Admin placeholder */}
       <Route
         path="/admin"
         element={

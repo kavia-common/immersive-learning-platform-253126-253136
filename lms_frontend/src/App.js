@@ -11,11 +11,14 @@ import Button from './components/ui/Button';
 import Card from './components/ui/Card';
 
 function TopbarActions() {
-  const { user } = useAuth();
+  const { user, hasRole } = useAuth();
   const navigate = useNavigate();
   return (
     <>
       <Button variant="ghost" size="sm" onClick={() => navigate('/marketplace')}>Search</Button>
+      {user && hasRole && hasRole('instructor') ? (
+        <Button variant="ghost" size="sm" onClick={() => navigate('/instructor')}>Instructor</Button>
+      ) : null}
       {user ? (
         <Button variant="primary" size="sm" onClick={() => navigate('/profile')}>My Account</Button>
       ) : (
