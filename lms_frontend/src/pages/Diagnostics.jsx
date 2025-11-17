@@ -5,6 +5,7 @@ import { useAuth } from '../state/AuthContext';
 import { getConfig } from '../lib/config';
 import { runSupabaseSelfTest } from '../utils/testSupabase';
 import { debugSupabaseConnection } from '../utils/debugConnection';
+import DiagnosticsPanel from '../components/DiagnosticsPanel';
 
 /**
  * Diagnostics panel for environment, network reachability, Supabase client, DB probe, and auth session.
@@ -102,6 +103,11 @@ export default function Diagnostics() {
       <p className="muted">
         Run environment and connectivity checks to quickly validate your setup. Secrets are never displayed.
       </p>
+
+      {/* New comprehensive DiagnosticsPanel (Supabase environment, network, DB probe, auth session) */}
+      <div style={{ margin: '16px 0' }}>
+        <DiagnosticsPanel />
+      </div>
 
       <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap', marginBottom: 12 }}>
         <Button variant="ghost" onClick={runChecks} disabled={checking}>
