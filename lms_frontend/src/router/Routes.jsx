@@ -9,6 +9,13 @@ import CourseCatalog from '../pages/CourseCatalog';
 import CourseDetails from '../pages/CourseDetails';
 import { AuthGuard, RoleGuard } from '../components/guards/AuthGuard';
 import Card from '../components/ui/Card';
+import LearnDashboard from '../pages/learn/LearnDashboard';
+import CoursePlayer from '../pages/learn/CoursePlayer';
+import LessonViewer from '../pages/learn/LessonViewer';
+import Discussions from '../pages/learn/Discussions';
+import Assignments from '../pages/learn/Assignments';
+import Quizzes from '../pages/learn/Quizzes';
+import Certificates from '../pages/learn/Certificates';
 
 const Placeholder = ({ title, desc }) => (
   <Card className="card" style={{ padding: 16 }}>
@@ -36,10 +43,59 @@ export function RoutesRoot() {
         path="/learn"
         element={
           <AuthGuard>
-            <Placeholder title="Learn" desc="Learning dashboard placeholder." />
+            <LearnDashboard />
           </AuthGuard>
         }
       />
+      <Route
+        path="/learn/:id"
+        element={
+          <AuthGuard>
+            <CoursePlayer />
+          </AuthGuard>
+        }
+      />
+      <Route
+        path="/learn/:id/lessons/:lessonId"
+        element={
+          <AuthGuard>
+            <LessonViewer />
+          </AuthGuard>
+        }
+      />
+      <Route
+        path="/learn/discussions"
+        element={
+          <AuthGuard>
+            <Discussions />
+          </AuthGuard>
+        }
+      />
+      <Route
+        path="/learn/assignments"
+        element={
+          <AuthGuard>
+            <Assignments />
+          </AuthGuard>
+        }
+      />
+      <Route
+        path="/learn/quizzes"
+        element={
+          <AuthGuard>
+            <Quizzes />
+          </AuthGuard>
+        }
+      />
+      <Route
+        path="/learn/:id/certificate"
+        element={
+          <AuthGuard>
+            <Certificates />
+          </AuthGuard>
+        }
+      />
+
       <Route
         path="/profile"
         element={
