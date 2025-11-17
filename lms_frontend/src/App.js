@@ -1,7 +1,7 @@
 import React from 'react';
 import './App.css';
 import './theme/global.css';
-import { BrowserRouter } from 'react-router-dom';
+import { BrowserRouter, Link, useNavigate } from 'react-router-dom';
 import { RoutesRoot } from './router/Routes';
 import { useAuth } from './state/AuthContext';
 import { ErrorBoundary } from './lib/errorBoundary';
@@ -10,9 +10,22 @@ import { ErrorBoundary } from './lib/errorBoundary';
  * App root with layout scaffold (Topbar/Sidebar placeholders) and gradient header.
  * Uses contexts and router to display basic route placeholders.
  */
-function App() {
+function TopbarActions() {
   const { user } = useAuth();
+  const navigate = useNavigate();
+  return (
+    <div className="topbar-right">
+      <button className="btn ghost small" type="button" onClick={() => navigate('/marketplace')}>Search</button>
+      {user ? (
+        <button className="btn primary small" type="button" onClick={() => navigate('/profile')}>My Account</button>
+      ) : (
+        <button className="btn primary small" type="button" onClick={() => navigate('/signin')}>Sign In</button>
+      )}
+    </div>
+  );
+}
 
+function App() {
   return (
     <ErrorBoundary>
       <BrowserRouter>
@@ -29,10 +42,7 @@ function App() {
                 <span className="crumb muted">Dashboard</span>
               </nav>
             </div>
-            <div className="topbar-right">
-              <button className="btn ghost small" type="button">Search</button>
-              <button className="btn primary small" type="button">{user ? 'My Account' : 'Sign In'}</button>
-            </div>
+            <TopbarActions />
           </header>
 
           <div className="gradient-hero" aria-hidden="true">
@@ -45,12 +55,12 @@ function App() {
           <div className="layout">
             <aside className="sidebar" aria-label="Sidebar navigation">
               <ul className="nav">
-                <li><a href="/marketplace" className="nav-link">Marketplace</a></li>
-                <li><a href="/learn" className="nav-link">Learn</a></li>
-                <li><a href="/profile" className="nav-link">Profile</a></li>
+                <li><Link to="/marketplace" className="nav-link">Marketplace</Link></li>
+                <li><Link to="/learn" className="nav-link">Learn</Link></li>
+                <li><Link to="/profile" className="nav-link">Profile</Link></li>
                 <li className="divider" />
-                <li><a href="/instructor" className="nav-link">Instructor</a></li>
-                <li><a href="/admin" className="nav-link">Admin</a></li>
+                <li><Link to="/instructor" className="nav-link">Instructor</Link></li>
+                <li><Link to="/admin" className="nav-link">Admin</Link></li>
               </ul>
             </aside>
             <main className="content" role="main">
