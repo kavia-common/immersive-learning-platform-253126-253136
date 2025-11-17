@@ -9,6 +9,7 @@ import Topbar from './components/layout/Topbar';
 import Sidebar from './components/layout/Sidebar';
 import Button from './components/ui/Button';
 import Card from './components/ui/Card';
+import { FeatureFlagProvider } from './state/FeatureFlagContext';
 
 function TopbarActions() {
   const { user, hasRole } = useAuth();
@@ -18,6 +19,9 @@ function TopbarActions() {
       <Button variant="ghost" size="sm" onClick={() => navigate('/marketplace')}>Search</Button>
       {user && hasRole && hasRole('instructor') ? (
         <Button variant="ghost" size="sm" onClick={() => navigate('/instructor')}>Instructor</Button>
+      ) : null}
+      {user && hasRole && hasRole('admin') ? (
+        <Button variant="ghost" size="sm" onClick={() => navigate('/admin')}>Admin</Button>
       ) : null}
       {user ? (
         <Button variant="primary" size="sm" onClick={() => navigate('/profile')}>My Account</Button>
@@ -32,6 +36,7 @@ function App() {
   return (
     <ErrorBoundary>
       <BrowserRouter>
+        <FeatureFlagProvider>
         <div className="app-root">
           <Topbar
             breadcrumbs={[
@@ -56,6 +61,7 @@ function App() {
                 { to: '/profile', label: 'Profile' },
                 'divider',
                 { to: '/instructor', label: 'Instructor' },
+                // Admin link shown, RoleGuard will protect actual route
                 { to: '/admin', label: 'Admin' },
               ]}
             />
@@ -75,6 +81,7 @@ function App() {
             <span>© {new Date().getFullYear()} Ocean LMS</span>
           </footer>
         </div>
+        </FeatureFlagProvider>
       </BrowserRouter>
     </ErrorBoundary>
   );

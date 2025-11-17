@@ -8,6 +8,12 @@ import Profile from '../pages/Profile';
 import CourseCatalog from '../pages/CourseCatalog';
 import CourseDetails from '../pages/CourseDetails';
 import { AuthGuard, RoleGuard } from '../components/guards/AuthGuard';
+import AdminDashboard from '../pages/admin/AdminDashboard';
+import AdminUsers from '../pages/admin/Users';
+import AdminCourses from '../pages/admin/Courses';
+import AdminSettings from '../pages/admin/Settings';
+import AdminFeatureToggles from '../pages/admin/FeatureToggles';
+import AdminAuditLogs from '../pages/admin/AuditLogs';
 import Card from '../components/ui/Card';
 import LearnDashboard from '../pages/learn/LearnDashboard';
 import CoursePlayer from '../pages/learn/CoursePlayer';
@@ -152,12 +158,52 @@ export function RoutesRoot() {
         }
       />
 
-      {/* Admin placeholder */}
+      {/* Admin routes (protected by admin role) */}
       <Route
         path="/admin"
         element={
-          <RoleGuard roles={['admin']}>
-            <Placeholder title="Admin" desc="Administration console placeholder." />
+          <RoleGuard roles={['admin']} fallback="/learn">
+            <AdminDashboard />
+          </RoleGuard>
+        }
+      />
+      <Route
+        path="/admin/users"
+        element={
+          <RoleGuard roles={['admin']} fallback="/learn">
+            <AdminUsers />
+          </RoleGuard>
+        }
+      />
+      <Route
+        path="/admin/courses"
+        element={
+          <RoleGuard roles={['admin']} fallback="/learn">
+            <AdminCourses />
+          </RoleGuard>
+        }
+      />
+      <Route
+        path="/admin/settings"
+        element={
+          <RoleGuard roles={['admin']} fallback="/learn">
+            <AdminSettings />
+          </RoleGuard>
+        }
+      />
+      <Route
+        path="/admin/feature-toggles"
+        element={
+          <RoleGuard roles={['admin']} fallback="/learn">
+            <AdminFeatureToggles />
+          </RoleGuard>
+        }
+      />
+      <Route
+        path="/admin/audit-logs"
+        element={
+          <RoleGuard roles={['admin']} fallback="/learn">
+            <AdminAuditLogs />
           </RoleGuard>
         }
       />
