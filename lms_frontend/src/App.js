@@ -24,6 +24,9 @@ function TopbarActions() {
       {user && hasRole && hasRole('admin') ? (
         <Button variant="ghost" size="sm" onClick={() => navigate('/admin')}>Admin</Button>
       ) : null}
+      {process.env.REACT_APP_NODE_ENV !== 'production' ? (
+        <Button variant="ghost" size="sm" onClick={() => navigate('/diagnostics')}>Diagnostics</Button>
+      ) : null}
       {user ? (
         <Button variant="primary" size="sm" onClick={() => navigate('/profile')}>My Account</Button>
       ) : (

@@ -16,6 +16,7 @@ import AdminFeatureToggles from '../pages/admin/FeatureToggles';
 import AdminAuditLogs from '../pages/admin/AuditLogs';
 import AnalyticsDashboard from '../pages/admin/AnalyticsDashboard';
 import Card from '../components/ui/Card';
+import Diagnostics from '../pages/Diagnostics';
 import LearnDashboard from '../pages/learn/LearnDashboard';
 import CoursePlayer from '../pages/learn/CoursePlayer';
 import LessonViewer from '../pages/learn/LessonViewer';
@@ -117,6 +118,16 @@ export function RoutesRoot() {
         }
       />
 
+      {/* Diagnostics - accessible to any signed-in user */}
+      <Route
+        path="/diagnostics"
+        element={
+          <AuthGuard>
+            <Diagnostics />
+          </AuthGuard>
+        }
+      />
+
       {/* Instructor routes (protected by role) */}
       <Route
         path="/instructor"
@@ -213,6 +224,14 @@ export function RoutesRoot() {
         element={
           <RoleGuard roles={['admin']} fallback="/learn">
             <AnalyticsDashboard />
+          </RoleGuard>
+        }
+      />
+      <Route
+        path="/admin/diagnostics"
+        element={
+          <RoleGuard roles={['admin']} fallback="/learn">
+            <Diagnostics />
           </RoleGuard>
         }
       />

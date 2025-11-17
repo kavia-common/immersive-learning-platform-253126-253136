@@ -51,6 +51,13 @@ export default function AdminDashboard() {
             <Button variant="primary" onClick={() => navigate('/admin/audit-logs')} aria-label="View Audit Logs">Open</Button>
           </div>
         </Card>
+        <Card>
+          <div style={{ padding: 16 }}>
+            <h2 className="card-title">Diagnostics</h2>
+            <p className="muted">Run environment and Supabase checks.</p>
+            <Button variant="primary" onClick={() => navigate('/admin/diagnostics')} aria-label="Open Diagnostics">Open</Button>
+          </div>
+        </Card>
       </div>
     </div>
   );
