@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import { Link } from 'react-router-dom';
+import useAnalytics from '../../hooks/useAnalytics';
 
 /**
  * LearnDashboard
@@ -10,6 +11,10 @@ import { Link } from 'react-router-dom';
  * Simple learner landing page with quick links.
  */
 export default function LearnDashboard() {
+  const { trackPageView } = useAnalytics();
+  useEffect(() => {
+    try { trackPageView({ page: '/learn' }); } catch (_) {}
+  }, [trackPageView]);
   return (
     <div style={{ display: 'grid', gap: 12 }}>
       <Card className="card" style={{ padding: 16 }}>

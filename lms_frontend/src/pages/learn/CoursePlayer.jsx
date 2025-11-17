@@ -8,6 +8,7 @@ import { logger } from '../../lib/logger';
 import { getConfig } from '../../lib/config';
 import { getCourseById } from '../../lib/supabaseHelpers';
 import { listLessons, saveProgress } from '../../lib/supabaseHelpers';
+import useAnalytics from '../../hooks/useAnalytics';
 
 /**
  * CoursePlayer
@@ -23,6 +24,7 @@ export default function CoursePlayer() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { addToast } = useUI();
+  const { trackPageView, trackEvent } = useAnalytics();
   const [course, setCourse] = useState(null);
   const [lessons, setLessons] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -37,6 +39,7 @@ export default function CoursePlayer() {
           getCourseById(courseId),
           listLessons(courseId)
         ]);
+        try { trackPageView({ page: `/learn/${courseId}`, courseId }); } catch (_) {}
         if (!mounted) return;
         if (cRes.error) {
           addToast({ title: 'Not found', message: 'Course not found', variant: 'warning' });
@@ -140,6 +143,17 @@ export default function CoursePlayer() {
             }}
           >
             Start course
+          </Button>
+          <Button
+            variant="primary"
+            size="sm"
+            onClick={() => {
+              const lessonId = lessons[0]?.id || 'demo-lesson';
+              try { trackEvent('lesson_complete', { courseId, lessonId, progress: 100 }); } catch (_) {}
+              addToast({ title: 'Tracked', message: 'Demo lesson_complete event sent.' });
+            }}
+          >
+            Demo: Track lesson_complete
           </Button>
         </div>
       ) : null}

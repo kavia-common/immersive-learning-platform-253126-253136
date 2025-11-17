@@ -80,3 +80,20 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/d
 ### `npm run build` fails to minify
 
 This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+
+## Analytics (Lightweight)
+
+A reusable analytics hook is available at `src/hooks/useAnalytics.js`. It emits structured events to console and optionally to a stub endpoint.
+
+- Supported events: `page_view`, `course_enroll`, `lesson_complete`
+- Optional network endpoint: set `REACT_APP_API_BASE` to enable POST requests to `${REACT_APP_API_BASE}/analytics/events`
+
+Integrated pages:
+- CourseCatalog: page_view
+- CourseDetails: page_view, course_enroll
+- LearnDashboard: page_view
+- CoursePlayer: page_view, demo lesson_complete
+- LessonViewer: page_view
+
+Admin view:
+- Analytics Dashboard at `/admin/analytics` (admin role) displays CSS-only charts for a zero-dependency visualization demo.

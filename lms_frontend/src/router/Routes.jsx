@@ -14,6 +14,7 @@ import AdminCourses from '../pages/admin/Courses';
 import AdminSettings from '../pages/admin/Settings';
 import AdminFeatureToggles from '../pages/admin/FeatureToggles';
 import AdminAuditLogs from '../pages/admin/AuditLogs';
+import AnalyticsDashboard from '../pages/admin/AnalyticsDashboard';
 import Card from '../components/ui/Card';
 import LearnDashboard from '../pages/learn/LearnDashboard';
 import CoursePlayer from '../pages/learn/CoursePlayer';
@@ -204,6 +205,14 @@ export function RoutesRoot() {
         element={
           <RoleGuard roles={['admin']} fallback="/learn">
             <AdminAuditLogs />
+          </RoleGuard>
+        }
+      />
+      <Route
+        path="/admin/analytics"
+        element={
+          <RoleGuard roles={['admin']} fallback="/learn">
+            <AnalyticsDashboard />
           </RoleGuard>
         }
       />

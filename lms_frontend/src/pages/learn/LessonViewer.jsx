@@ -6,6 +6,7 @@ import { useUI } from '../../state/UIContext';
 import { logger } from '../../lib/logger';
 import { useFeatureFlag } from '../../hooks/useFeatureFlag';
 import { fetchLessonContent, listLessons, saveProgress, subscribeLessonUpdates } from '../../lib/supabaseHelpers';
+import useAnalytics from '../../hooks/useAnalytics';
 
 /**
  * LessonViewer
@@ -27,6 +28,7 @@ export default function LessonViewer() {
   const [position, setPosition] = useState(0); // seconds
   const [completed, setCompleted] = useState(false);
   const unsubRef = useRef(null);
+  const { trackPageView } = useAnalytics();
 
   const currentIndex = useMemo(
     () => (lessons || []).findIndex((l) => String(l.id) === String(lessonId)),
@@ -64,6 +66,7 @@ export default function LessonViewer() {
         } else {
           setContent(cRes.data || null);
         }
+        try { trackPageView({ page: `/learn/${courseId}/lessons/${lessonId}`, courseId, lessonId }); } catch (_) {}
       } catch (e) {
         logger.error('LessonViewer init failed', { err: e?.message, courseId, lessonId });
         addToast({ title: 'Error', message: 'Unable to load lesson right now.', variant: 'error' });

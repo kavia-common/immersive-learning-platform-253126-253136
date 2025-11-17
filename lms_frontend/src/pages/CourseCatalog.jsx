@@ -5,6 +5,7 @@ import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
 import { listCourses } from '../lib/supabaseHelpers';
 import { logger } from '../lib/logger';
+import useAnalytics from '../hooks/useAnalytics';
 
 const CATEGORIES = ['All', 'Development', 'Design', 'Marketing', 'Business', 'Data'];
 const LEVELS = ['All', 'Beginner', 'Intermediate', 'Advanced'];
@@ -28,6 +29,7 @@ export default function CourseCatalog() {
   const [loading, setLoading] = useState(false);
   const [courses, setCourses] = useState([]);
   const [count, setCount] = useState(0);
+  const { trackPageView } = useAnalytics();
 
   const q = params.get('q') || '';
   const category = params.get('category') || 'All';
@@ -48,6 +50,7 @@ export default function CourseCatalog() {
   useEffect(() => {
     let mounted = true;
     setLoading(true);
+    trackPageView({ page: '/marketplace' });
     listCourses(filters).then((res) => {
       if (!mounted) return;
       if (res.error) {

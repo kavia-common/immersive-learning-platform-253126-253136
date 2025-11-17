@@ -7,6 +7,7 @@ import { logger } from '../lib/logger';
 import { useUI } from '../state/UIContext';
 import { useAuth } from '../state/AuthContext';
 import { getConfig } from '../lib/config';
+import useAnalytics from '../hooks/useAnalytics';
 
 // PUBLIC_INTERFACE
 export default function CourseDetails() {
@@ -21,6 +22,7 @@ export default function CourseDetails() {
   const [loading, setLoading] = useState(true);
   const [course, setCourse] = useState(null);
   const [enrolling, setEnrolling] = useState(false);
+  const { trackPageView, trackEvent } = useAnalytics();
 
   useEffect(() => {
     let mounted = true;
@@ -33,6 +35,7 @@ export default function CourseDetails() {
         navigate('/marketplace', { replace: true });
       } else {
         setCourse(res.data);
+        try { trackPageView({ page: `/marketplace/${id}`, courseId: id }); } catch (_) {}
       }
     }).finally(() => mounted && setLoading(false));
     return () => { mounted = false; };
@@ -46,6 +49,7 @@ export default function CourseDetails() {
     setEnrolling(true);
     try {
       const { status, error } = await enrollInCourse(id);
+      try { trackEvent('course_enroll', { courseId: id, source: 'CourseDetails' }); } catch (_) {}
       if (error) {
         addToast({ title: 'Enrollment failed', message: error.message || 'Please try again.', variant: 'error' });
         return;
