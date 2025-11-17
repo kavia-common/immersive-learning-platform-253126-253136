@@ -5,6 +5,8 @@ import SignUp from '../pages/SignUp';
 import ForgotPassword from '../pages/ForgotPassword';
 import VerifyEmail from '../pages/VerifyEmail';
 import Profile from '../pages/Profile';
+import CourseCatalog from '../pages/CourseCatalog';
+import CourseDetails from '../pages/CourseDetails';
 import { AuthGuard, RoleGuard } from '../components/guards/AuthGuard';
 import Card from '../components/ui/Card';
 
@@ -22,7 +24,8 @@ export function RoutesRoot() {
     <Routes>
       {/* Public routes */}
       <Route path="/" element={<Navigate to="/marketplace" replace />} />
-      <Route path="/marketplace" element={<Placeholder title="Marketplace" desc="Course catalog placeholder." />} />
+      <Route path="/marketplace" element={<CourseCatalog />} />
+      <Route path="/marketplace/:id" element={<CourseDetails />} />
       <Route path="/signin" element={<SignIn />} />
       <Route path="/signup" element={<SignUp />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
