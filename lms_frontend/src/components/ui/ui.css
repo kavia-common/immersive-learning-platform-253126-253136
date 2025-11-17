@@ -1,0 +1,138 @@
+:root {
+  /* Reuse existing tokens from theme/global.css where possible */
+}
+
+/* Buttons */
+.oui-btn {
+  border: 1px solid transparent;
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-weight: 600;
+  cursor: pointer;
+  background: transparent;
+  transition: background .2s, border-color .2s, color .2s, transform .05s, box-shadow .2s;
+}
+.oui-btn:focus-visible { box-shadow: var(--focus-ring); }
+.oui-btn--block { width: 100%; }
+.oui-btn--sm { padding: 6px 10px; font-size: 0.9rem; }
+.oui-btn--md { padding: 8px 12px; }
+.oui-btn--lg { padding: 10px 14px; font-size: 1.05rem; }
+
+.oui-btn--primary {
+  background: var(--color-primary);
+  color: #fff;
+}
+.oui-btn--primary:hover { filter: brightness(0.95); }
+.oui-btn--ghost {
+  color: var(--color-text);
+  border-color: var(--glass-border);
+}
+.oui-btn--ghost:hover { background: var(--hover-ghost); }
+.oui-btn--subtle {
+  background: rgba(255,255,255,0.6);
+  border-color: var(--glass-border);
+}
+.oui-btn--danger {
+  background: var(--color-error);
+  color: #fff;
+}
+.oui-btn[disabled] { opacity: 0.6; cursor: not-allowed; }
+
+/* Inputs */
+.oui-field { display: grid; gap: 6px; }
+.oui-field--block { width: 100%; }
+.oui-label { font-weight: 600; font-size: 0.95rem; }
+.oui-input {
+  display: block;
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--glass-border);
+  background: var(--surface);
+  color: var(--color-text);
+  transition: box-shadow .2s, border-color .2s, background .2s;
+}
+.oui-input:focus-visible {
+  border-color: var(--color-primary);
+  box-shadow: var(--focus-ring);
+}
+.oui-input.is-error { border-color: var(--color-error); }
+.oui-help { color: var(--muted-600); font-size: 0.9rem; }
+.oui-error { color: var(--color-error); font-size: 0.9rem; }
+
+/* Cards */
+.oui-card {
+  background: var(--surface);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+}
+.oui-card--subtle {
+  background: var(--surface-translucent);
+  backdrop-filter: blur(10px);
+}
+.oui-card--gradient {
+  background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+}
+
+/* Modal */
+.oui-modal-backdrop {
+  position: fixed; inset: 0; background: rgba(17,24,39,0.5);
+  display: grid; place-items: center;
+  padding: 16px;
+  z-index: 50;
+}
+.oui-modal {
+  background: var(--surface);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  width: 640px; max-width: 100%;
+  max-height: 90vh; overflow: auto;
+  padding: 12px;
+}
+.oui-modal__header {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  border-bottom: 1px solid var(--glass-border);
+  padding-bottom: 8px;
+}
+.oui-modal__title { margin: 0; }
+.oui-modal__body { padding-top: 12px; }
+
+/* Toast */
+.oui-toast {
+  min-width: 260px;
+  padding: 12px;
+  margin-top: 8px;
+  border-radius: var(--radius-md);
+}
+.oui-toast__header {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+}
+.oui-toast__title { font-weight: 700; }
+.oui-toast__body { color: var(--muted-700); margin-top: 6px; }
+.oui-toast--success { border-left: 3px solid #16a34a; }
+.oui-toast--warning { border-left: 3px solid #f59e0b; }
+.oui-toast--error { border-left: 3px solid #ef4444; }
+
+/* Breadcrumbs */
+.oui-breadcrumbs { color: var(--muted-600); font-size: 0.9rem; display: flex; align-items: center; }
+.oui-breadcrumbs__list { list-style: none; padding: 0; margin: 0; display: flex; align-items: center; gap: 8px; }
+.oui-breadcrumbs__link { color: var(--muted-600); text-decoration: none; }
+.oui-breadcrumbs__link.is-current { color: var(--muted-700); }
+.oui-breadcrumbs__link:hover { color: var(--color-primary); }
+.oui-breadcrumbs__divider { color: var(--muted-500); }
+
+/* Sidebar extra */
+.sidebar__toggle { display: none; margin-bottom: 8px; }
+.oui-side.is-open { display: block; }
+@media (max-width: 900px) {
+  .sidebar__toggle { display: inline-flex; }
+  .oui-side { display: none; }
+}
+
+/* Active nav link */
+.nav-link.is-active {
+  background: var(--hover-ghost);
+  color: var(--color-primary);
+}

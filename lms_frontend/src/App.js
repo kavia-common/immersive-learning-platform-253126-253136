@@ -1,27 +1,27 @@
 import React from 'react';
 import './App.css';
 import './theme/global.css';
-import { BrowserRouter, Link, useNavigate } from 'react-router-dom';
+import { BrowserRouter, useNavigate } from 'react-router-dom';
 import { RoutesRoot } from './router/Routes';
 import { useAuth } from './state/AuthContext';
 import { ErrorBoundary } from './lib/errorBoundary';
+import Topbar from './components/layout/Topbar';
+import Sidebar from './components/layout/Sidebar';
+import Button from './components/ui/Button';
+import Card from './components/ui/Card';
 
-/**
- * App root with layout scaffold (Topbar/Sidebar placeholders) and gradient header.
- * Uses contexts and router to display basic route placeholders.
- */
 function TopbarActions() {
   const { user } = useAuth();
   const navigate = useNavigate();
   return (
-    <div className="topbar-right">
-      <button className="btn ghost small" type="button" onClick={() => navigate('/marketplace')}>Search</button>
+    <>
+      <Button variant="ghost" size="sm" onClick={() => navigate('/marketplace')}>Search</Button>
       {user ? (
-        <button className="btn primary small" type="button" onClick={() => navigate('/profile')}>My Account</button>
+        <Button variant="primary" size="sm" onClick={() => navigate('/profile')}>My Account</Button>
       ) : (
-        <button className="btn primary small" type="button" onClick={() => navigate('/signin')}>Sign In</button>
+        <Button variant="primary" size="sm" onClick={() => navigate('/signin')}>Sign In</Button>
       )}
-    </div>
+    </>
   );
 }
 
@@ -30,20 +30,13 @@ function App() {
     <ErrorBoundary>
       <BrowserRouter>
         <div className="app-root">
-          <header className="topbar" role="banner">
-            <div className="topbar-left">
-              <div className="brand">
-                <span className="brand-dot" aria-hidden="true" />
-                <span className="brand-name">Ocean LMS</span>
-              </div>
-              <nav className="breadcrumb" aria-label="Breadcrumb">
-                <span className="crumb">Home</span>
-                <span className="divider">/</span>
-                <span className="crumb muted">Dashboard</span>
-              </nav>
-            </div>
-            <TopbarActions />
-          </header>
+          <Topbar
+            breadcrumbs={[
+              { label: 'Home', to: '/' },
+              { label: 'Dashboard', current: true },
+            ]}
+            actions={<TopbarActions />}
+          />
 
           <div className="gradient-hero" aria-hidden="true">
             <div className="hero-content">
@@ -53,18 +46,25 @@ function App() {
           </div>
 
           <div className="layout">
-            <aside className="sidebar" aria-label="Sidebar navigation">
-              <ul className="nav">
-                <li><Link to="/marketplace" className="nav-link">Marketplace</Link></li>
-                <li><Link to="/learn" className="nav-link">Learn</Link></li>
-                <li><Link to="/profile" className="nav-link">Profile</Link></li>
-                <li className="divider" />
-                <li><Link to="/instructor" className="nav-link">Instructor</Link></li>
-                <li><Link to="/admin" className="nav-link">Admin</Link></li>
-              </ul>
-            </aside>
+            <Sidebar
+              items={[
+                { to: '/marketplace', label: 'Marketplace' },
+                { to: '/learn', label: 'Learn' },
+                { to: '/profile', label: 'Profile' },
+                'divider',
+                { to: '/instructor', label: 'Instructor' },
+                { to: '/admin', label: 'Admin' },
+              ]}
+            />
             <main className="content" role="main">
               <RoutesRoot />
+              <div style={{ marginTop: 16 }}>
+                <Card variant="subtle">
+                  <div style={{ padding: 12, color: 'var(--muted-700)' }}>
+                    Tip: Use the sidebar to explore different roles and sections.
+                  </div>
+                </Card>
+              </div>
             </main>
           </div>
 

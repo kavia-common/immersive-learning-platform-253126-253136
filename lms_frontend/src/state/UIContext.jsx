@@ -1,4 +1,6 @@
 import React, { createContext, useContext, useMemo, useState } from 'react';
+import Toast from '../components/ui/Toast';
+import Modal from '../components/ui/Modal';
 
 export const UIContext = createContext({
   toasts: [],
@@ -31,25 +33,34 @@ export function UIProvider({ children }) {
   return (
     <UIContext.Provider value={value}>
       {children}
-      {/* Placeholder render areas */}
-      <div aria-live="polite" aria-atomic="true" style={{ position: 'fixed', right: 16, bottom: 16 }}>
+
+      {/* Toast region */}
+      <div
+        aria-live="polite"
+        aria-atomic="true"
+        style={{ position: 'fixed', right: 16, bottom: 16, zIndex: 60 }}
+      >
         {toasts.map((t) => (
-          <div key={t.id} className="card" style={{ padding: 12, marginTop: 8, minWidth: 240 }}>
-            <strong>{t.title || 'Notice'}</strong>
-            {t.message ? <div style={{ color: 'var(--muted-700)' }}>{t.message}</div> : null}
-            <button className="btn ghost small" onClick={() => removeToast(t.id)} style={{ marginTop: 8 }}>Dismiss</button>
-          </div>
+          <Toast
+            key={t.id}
+            title={t.title || 'Notice'}
+            message={t.message}
+            variant={t.variant || 'info'}
+            onDismiss={() => removeToast(t.id)}
+          />
         ))}
       </div>
+
+      {/* Modal region */}
       {modals.map((m) => (
-        <div key={m.id} role="dialog" aria-modal="true" className="card"
-             style={{ position: 'fixed', inset: 0, margin: 'auto', width: 480, maxWidth: '90%', padding: 16 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-            <strong>{m.title || 'Modal'}</strong>
-            <button className="btn ghost small" onClick={() => closeModal(m.id)}>Close</button>
-          </div>
+        <Modal
+          key={m.id}
+          open
+          title={m.title || 'Modal'}
+          onClose={() => closeModal(m.id)}
+        >
           {m.content}
-        </div>
+        </Modal>
       ))}
     </UIContext.Provider>
   );

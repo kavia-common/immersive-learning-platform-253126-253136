@@ -6,12 +6,13 @@ import ForgotPassword from '../pages/ForgotPassword';
 import VerifyEmail from '../pages/VerifyEmail';
 import Profile from '../pages/Profile';
 import { AuthGuard, RoleGuard } from '../components/guards/AuthGuard';
+import Card from '../components/ui/Card';
 
 const Placeholder = ({ title, desc }) => (
-  <div className="card" style={{ padding: 16 }}>
+  <Card className="card" style={{ padding: 16 }}>
     <h2>{title}</h2>
     {desc ? <p style={{ color: 'var(--muted-700)' }}>{desc}</p> : null}
-  </div>
+  </Card>
 );
 
 // PUBLIC_INTERFACE

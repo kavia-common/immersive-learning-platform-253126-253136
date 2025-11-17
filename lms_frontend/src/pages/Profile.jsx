@@ -1,5 +1,7 @@
 import React from 'react';
 import { useAuth } from '../state/AuthContext';
+import Card from '../components/ui/Card';
+import Button from '../components/ui/Button';
 
 // PUBLIC_INTERFACE
 export default function Profile() {
@@ -7,7 +9,7 @@ export default function Profile() {
   const { user, roles, signOut, loading } = useAuth();
 
   return (
-    <div className="card" style={{ padding: 16 }}>
+    <Card className="card" style={{ padding: 16 }}>
       <h2>My Profile</h2>
       {user ? (
         <>
@@ -19,12 +21,12 @@ export default function Profile() {
             Roles: {roles.length ? roles.join(', ') : 'none'}
           </p>
           <div style={{ marginTop: 12 }}>
-            <button disabled={loading} onClick={signOut} className="btn ghost">Sign Out</button>
+            <Button variant="ghost" disabled={loading} onClick={signOut}>Sign Out</Button>
           </div>
         </>
       ) : (
         <p style={{ color: 'var(--muted-700)' }}>Not signed in.</p>
       )}
-    </div>
+    </Card>
   );
 }
