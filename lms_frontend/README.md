@@ -53,6 +53,77 @@ Common components include:
 - Navigation (`.navbar`)
 - Typography (`.title`, `.subtitle`, `.description`)
 
+## Logging
+
+Structured logger is available at `src/lib/logger.js`.
+
+- Configure log level via environment variable `REACT_APP_LOG_LEVEL`:
+  - Allowed values: `debug`, `info`, `warn`, `error`
+  - Default: `info`
+- Sensitive data masking:
+  - Email addresses are masked.
+  - Long secrets/tokens (24+ chars) and values of sensitive keys are redacted.
+  - Sensitive keys include: `password`, `token`, `access_token`, `refresh_token`, `authorization`, `apikey`, `api_key`, `secret`, `key`, `auth`, `pass`, `pwd`.
+- Usage:
+  ```js
+  import { logger } from './src/lib/logger';
+  logger.info('App started', { version: '1.0.0' });
+  logger.error('Operation failed', { reason: 'Network timeout', requestId: 'req-123' });
+  ```
+- Output is structured: `{ timestamp, level, message, meta }`.
+
+## Validation Utilities
+
+Reusable validators reside in `src/lib/validation.js`.
+
+- Import:
+  ```js
+  import { Validators, assertValid } from './src/lib/validation';
+  ```
+- Examples:
+  ```js
+  const email = assertValid(Validators.email(form.email));
+  const pwd = assertValid(Validators.password(form.password));
+  const url = assertValid(Validators.url(form.website));
+  const name = assertValid(Validators.string(form.name, { min: 2, max: 60 }));
+  const payload = assertValid(
+    Validators.object(form, {
+      email: Validators.email,
+      password: (v) => Validators.password(v, { min: 10 }),
+    })
+  );
+  ```
+- Helpers:
+  - `string(value, {min, max, trim})`
+  - `email(value)`
+  - `password(value, {min, requireNumber, requireLetter})`
+  - `uuid(value)`
+  - `url(value, {protocols})`
+  - `integer(value, {min, max})`
+  - `sanitizeText(value)` — removes `<`, `>`, and control characters
+  - `object(obj, schema)` — schema-based object validation
+  - `assertValid(result, prefix?)` — throws on invalid with a message
+
+## Environment Variables
+
+Ensure the following (as applicable) are set in `.env`:
+
+- `REACT_APP_SUPABASE_URL`
+- `REACT_APP_SUPABASE_KEY`
+- `REACT_APP_API_BASE`
+- `REACT_APP_BACKEND_URL`
+- `REACT_APP_FRONTEND_URL`
+- `REACT_APP_WS_URL`
+- `REACT_APP_NODE_ENV`
+- `REACT_APP_NEXT_TELEMETRY_DISABLED`
+- `REACT_APP_ENABLE_SOURCE_MAPS`
+- `REACT_APP_PORT`
+- `REACT_APP_TRUST_PROXY`
+- `REACT_APP_LOG_LEVEL`
+- `REACT_APP_HEALTHCHECK_PATH`
+- `REACT_APP_FEATURE_FLAGS`
+- `REACT_APP_EXPERIMENTS_ENABLED`
+
 ## Learn More
 
 To learn React, check out the [React documentation](https://reactjs.org/).

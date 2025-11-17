@@ -34,7 +34,6 @@ function TopbarActions() {
 
 function App() {
   return (
-    <ErrorBoundary>
       <BrowserRouter>
         <FeatureFlagProvider>
         <div className="app-root">
@@ -83,7 +82,6 @@ function App() {
         </div>
         </FeatureFlagProvider>
       </BrowserRouter>
-    </ErrorBoundary>
   );
 }
 
