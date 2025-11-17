@@ -14,7 +14,8 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "env:print": "node -e \"console.log('SUPABASE_URL set?', Boolean(process.env.REACT_APP_SUPABASE_URL)); console.log('SUPABASE_ANON_KEY set?', Boolean(process.env.REACT_APP_SUPABASE_ANON_KEY || process.env.REACT_APP_SUPABASE_KEY));\""
   },
   "eslintConfig": {
     "extends": "react-app"

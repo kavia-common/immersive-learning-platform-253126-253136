@@ -10,6 +10,7 @@ import Sidebar from './components/layout/Sidebar';
 import Button from './components/ui/Button';
 import Card from './components/ui/Card';
 import { FeatureFlagProvider } from './state/FeatureFlagContext';
+import { runSupabaseSelfTest } from './utils/testSupabase';
 
 function TopbarActions() {
   const { user, hasRole } = useAuth();
@@ -32,6 +33,40 @@ function TopbarActions() {
   );
 }
 
+function SupabaseStatusBanner() {
+  const [status, setStatus] = React.useState({ loading: true });
+
+  React.useEffect(() => {
+    let mounted = true;
+    (async () => {
+      const s = await runSupabaseSelfTest();
+      if (mounted) setStatus({ loading: false, ...s });
+    })();
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  if (status.loading) return null;
+
+  const ok = status.ok;
+  const style = {
+    padding: '8px 12px',
+    borderRadius: 8,
+    margin: '8px 16px',
+    background: ok ? 'rgba(16, 185, 129, 0.12)' : 'rgba(239, 68, 68, 0.12)',
+    color: ok ? 'rgb(6, 95, 70)' : 'rgb(127, 29, 29)',
+    fontSize: 12,
+    display: 'inline-block',
+  };
+
+  return (
+    <div role="status" aria-live="polite" style={style}>
+      Supabase: {status.message}
+    </div>
+  );
+}
+
 function App() {
   return (
       <BrowserRouter>
@@ -49,6 +84,7 @@ function App() {
             <div className="hero-content">
               <h1 className="hero-title">Learn. Create. Grow.</h1>
               <p className="hero-subtitle">A modern learning experience, powered by Ocean Professional design.</p>
+              <SupabaseStatusBanner />
             </div>
           </div>
 

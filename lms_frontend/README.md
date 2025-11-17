@@ -106,10 +106,14 @@ Reusable validators reside in `src/lib/validation.js`.
 
 ## Environment Variables
 
-Ensure the following (as applicable) are set in `.env`:
+Create a `.env` file (see `.env.example`) and set at minimum:
 
 - `REACT_APP_SUPABASE_URL`
-- `REACT_APP_SUPABASE_KEY`
+- `REACT_APP_SUPABASE_ANON_KEY` (or legacy `REACT_APP_SUPABASE_KEY`)
+- `REACT_APP_SITE_URL` (used for auth email redirects, e.g., http://localhost:3000)
+- `REACT_APP_APP_NAME` (optional, display/telemetry header)
+
+Other optional vars:
 - `REACT_APP_API_BASE`
 - `REACT_APP_BACKEND_URL`
 - `REACT_APP_FRONTEND_URL`
@@ -123,6 +127,26 @@ Ensure the following (as applicable) are set in `.env`:
 - `REACT_APP_HEALTHCHECK_PATH`
 - `REACT_APP_FEATURE_FLAGS`
 - `REACT_APP_EXPERIMENTS_ENABLED`
+
+### Supabase Client
+
+The client is initialized in `src/config/supabaseClient.js` with:
+- PKCE auth flow, auto-refresh, and session persistence enabled
+- Strict env validation (missing required values will throw on init)
+- Safe logging and no secret exposure
+
+Legacy imports from `src/lib/supabaseClient` are preserved and re-export the new client.
+
+### CORS and Production Notes
+
+- In Supabase Dashboard:
+  - Set Auth > URL Configuration > Site URL to your `REACT_APP_SITE_URL`.
+  - Add additional redirect URLs for staging/preview environments as needed.
+- For local dev, ensure your browser hits http://localhost:3000.
+- Edge Functions / REST must allow your frontend origin in CORS settings.
+- Never commit `.env`. Use environment variables in your deployment platform.
+
+For email sign-in or OAuth, the PKCE flow will handle callbacks automatically when your app is served from the configured `REACT_APP_SITE_URL`.
 
 ## Learn More
 
