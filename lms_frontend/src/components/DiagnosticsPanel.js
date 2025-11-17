@@ -160,6 +160,7 @@ export default function DiagnosticsPanel() {
   const [network, setNetwork] = useState({ loading: false, result: null });
   const [db, setDb] = useState({ loading: false, result: null });
   const [auth, setAuth] = useState({ loading: false, result: null });
+  const [runningAll, setRunningAll] = useState(false);
 
   const supabaseUrl = useMemo(() => process.env.REACT_APP_SUPABASE_URL || '', []);
   const supabaseKeyMasked = useMemo(() => maskValue(process.env.REACT_APP_SUPABASE_KEY || ''), []);
@@ -186,6 +187,41 @@ export default function DiagnosticsPanel() {
     setAuth({ loading: false, result });
   };
 
+  const runAll = async () => {
+    setRunningAll(true);
+    try {
+      runEnvCheck();
+      const [net, dbres, authres] = await Promise.all([
+        (async () => {
+          const r = await checkNetwork(supabaseUrl);
+          setNetwork({ loading: false, result: r });
+          return r;
+        })(),
+        (async () => {
+          const r = await probeDatabase();
+          setDb({ loading: false, result: r });
+          return r;
+        })(),
+        (async () => {
+          const r = await checkAuthSession();
+          setAuth({ loading: false, result: r });
+          return r;
+        })(),
+      ]);
+      try {
+        // eslint-disable-next-line no-console
+        console.info('DiagnosticsPanel runAll (masked):', {
+          env: envResults.map(e => ({ key: e.key, present: e.present })),
+          network: net,
+          db: { ok: dbres?.ok, message: dbres?.message },
+          auth: { ok: authres?.ok, hasSession: !!authres?.session },
+        });
+      } catch (_) {}
+    } finally {
+      setRunningAll(false);
+    }
+  };
+
   const allEnvPresent = envResults.every((e) => e.present);
 
   return (
@@ -195,9 +231,29 @@ export default function DiagnosticsPanel() {
       padding: 20,
       border: '1px solid #dbeafe'
     }}>
-      <div style={{ display: 'flex', alignItems: 'center', marginBottom: 12 }}>
-        <h2 style={{ margin: 0, fontSize: 18, color: '#111827' }}>Supabase Diagnostics</h2>
-        <Badge ok={allEnvPresent} label={allEnvPresent ? 'Env OK' : 'Env Missing'} />
+      <div style={{ display: 'flex', alignItems: 'center', marginBottom: 12, justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <h2 style={{ margin: 0, fontSize: 18, color: '#111827' }}>Supabase Diagnostics</h2>
+          <Badge ok={allEnvPresent} label={allEnvPresent ? 'Env OK' : 'Env Missing'} />
+        </div>
+        <div>
+          <button
+            onClick={runAll}
+            disabled={runningAll}
+            style={{
+              background: '#111827',
+              color: '#fff',
+              padding: '8px 12px',
+              borderRadius: 8,
+              border: 'none',
+              cursor: runningAll ? 'not-allowed' : 'pointer',
+              opacity: runningAll ? 0.7 : 1
+            }}
+            aria-label="Run all diagnostics checks"
+          >
+            {runningAll ? 'Running…' : 'Run all checks'}
+          </button>
+        </div>
       </div>
 
       <Section title="Environment Variables">

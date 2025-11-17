@@ -39,16 +39,29 @@ function TopbarActions() {
 function SupabaseStatusBanner() {
   const [status, setStatus] = React.useState({ loading: true });
 
+  const refresh = React.useCallback(async () => {
+    const s = await runSupabaseSelfTest();
+    setStatus({ loading: false, ...s });
+  }, []);
+
   React.useEffect(() => {
     let mounted = true;
     (async () => {
       const s = await runSupabaseSelfTest();
       if (mounted) setStatus({ loading: false, ...s });
     })();
+
+    const handler = () => {
+      // re-run when diagnostics page triggers global event
+      refresh();
+    };
+    window.addEventListener('diagnostics:rerun', handler);
+
     return () => {
       mounted = false;
+      window.removeEventListener('diagnostics:rerun', handler);
     };
-  }, []);
+  }, [refresh]);
 
   if (status.loading) return null;
 

@@ -49,15 +49,63 @@ export default function Diagnostics() {
       };
       setEnvInfo(env);
 
-      // Detailed connection diagnostics
-      const connection = await debugSupabaseConnection(4000);
-      setConnInfo(connection);
+      // Run both diagnostics in parallel for speed
+      const [connection, self] = await Promise.all([
+        debugSupabaseConnection(4000),
+        runSupabaseSelfTest(),
+      ]);
 
-      // Supabase self test (includes session and DB probe)
-      const self = await runSupabaseSelfTest();
+      // Update panel state
+      setConnInfo(connection);
       setSelfTest(self);
 
+      // Log masked results to console for developer visibility
+      try {
+        // eslint-disable-next-line no-console
+        console.info({
+          diagnosticsRunAt: new Date().toISOString(),
+          envMasked: {
+            nodeEnv: env.nodeEnv,
+            supabaseUrlPresent: env.supabaseUrlPresent,
+            supabaseKeyPresent: env.supabaseKeyPresent,
+            apiBasePresent: env.apiBasePresent,
+            frontendUrlPresent: env.frontendUrlPresent,
+            wsUrlPresent: env.wsUrlPresent,
+            supabaseUrlSample: env.supabaseUrlSample,
+            supabaseKeyLen: env.supabaseKeyLen,
+          },
+          connection: {
+            ok: connection?.ok,
+            network: {
+              reachable: connection?.network?.reachable,
+              status: connection?.network?.status,
+            },
+            probe: {
+              ok: connection?.probe?.ok,
+              table: connection?.probe?.table,
+              tried: connection?.probe?.tried,
+            },
+            notes: connection?.notes,
+          },
+          selfTest: {
+            ok: self?.ok,
+            message: self?.message,
+            details: {
+              sessionPresent: self?.details?.sessionPresent ?? null,
+              table: self?.details?.tableProbe?.table ?? null,
+              settingsOk: self?.details?.settingsOk ?? null,
+            },
+          },
+        });
+      } catch (_) {
+        // noop
+      }
+
       setTs(new Date().toISOString());
+      try {
+        // Notify banner to refresh
+        window.dispatchEvent(new Event('diagnostics:rerun'));
+      } catch (_) {}
     } finally {
       setChecking(false);
     }
