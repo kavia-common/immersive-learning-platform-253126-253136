@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { logger } from '../lib/logger';
-import { getSupabaseClient } from '../lib/supabaseClient';
+import { getSupabaseClient } from '../config/supabaseClient';
 import { getConfig } from '../lib/config';
 import { useUI } from './UIContext';
 
