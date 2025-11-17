@@ -1,71 +1,211 @@
-"use strict";
-
-import { getSupabaseClient } from '../config/supabaseClient';
-import { logger } from '../lib/logger';
+import { supabase } from '../lib/supabaseClient';
+import logger from '../lib/logger';
 
 /**
  * PUBLIC_INTERFACE
- * seedSampleCategories
- * Seeds a minimal set of course categories if the 'categories' table exists.
- * - Safe to run multiple times (checks existing rows).
- * - If the table does not exist or RLS denies, logs a warning and no-ops.
- * - This is intended for local development onboarding only.
+ * initializeSampleData seeds essential reference data (categories) and a sample course
+ * into the Supabase backend for a clean developer/demo environment.
  *
- * Note:
- * - No credentials are hardcoded. Ensure your .env has:
- *   REACT_APP_SUPABASE_URL and REACT_APP_SUPABASE_ANON_KEY (or REACT_APP_SUPABASE_KEY)
+ * Features:
+ * - Idempotent: Safe to run multiple times without duplicating entities
+ * - Step tracking: Returns detailed step-by-step results with status and messages
+ * - Masking: Logs avoid exposing PII or secrets
+ * - Safe checks: Validates tables availability and permissions
+ * - Uses existing supabase client export pattern from ../lib/supabaseClient
+ *
+ * Returns:
+ *   {
+ *     success: boolean,
+ *     steps: Array<{
+ *       name: string,
+ *       status: 'success' | 'skipped' | 'error',
+ *       message: string,
+ *       meta?: Record<string, any>
+ *     }>,
+ *     summary: string
+ *   }
  */
-export async function seedSampleCategories() {
-  const supabase = getSupabaseClient();
+// PUBLIC_INTERFACE
+export async function initializeSampleData() {
+  /** Mask helper to avoid leaking PII or large blobs in logs */
+  const mask = (val, maxLen = 128) => {
+    try {
+      if (val == null) return val;
+      if (typeof val === 'string') {
+        if (val.length <= maxLen) return val;
+        return `${val.slice(0, maxLen)}...(${val.length - maxLen} more)`;
+      }
+      if (Array.isArray(val)) return `[array(${val.length})]`;
+      if (typeof val === 'object') return '{object}';
+      return val;
+    } catch {
+      return '{unserializable}';
+    }
+  };
 
-  // If running with fallback client, simply warn and exit.
-  if (supabase.__noop__) {
-    logger.warn('seedSampleCategories skipped: Supabase not configured');
-    return { skipped: true, reason: 'supabase not configured' };
+  const steps = [];
+  const addStep = (name, status, message, meta) => {
+    const entry = { name, status, message, ...(meta ? { meta } : {}) };
+    steps.push(entry);
+    // Use structured logging; do not log sensitive values.
+    const logPayload = {
+      step: name,
+      status,
+      message,
+      meta: meta ? Object.fromEntries(Object.entries(meta).map(([k, v]) => [k, mask(v)])) : undefined
+    };
+    if (status === 'error') {
+      logger.error('initSampleData step failed', logPayload);
+    } else if (status === 'skipped') {
+      logger.warn('initSampleData step skipped', logPayload);
+    } else {
+      logger.info('initSampleData step success', logPayload);
+    }
+  };
+
+  // Basic environment checks
+  try {
+    if (!supabase) {
+      addStep('env:client', 'error', 'Supabase client not initialized');
+      return {
+        success: false,
+        steps,
+        summary: 'Initialization failed: Supabase client not available'
+      };
+    }
+    addStep('env:client', 'success', 'Supabase client OK');
+  } catch (e) {
+    addStep('env:client', 'error', 'Supabase client threw during check', { error: String(e) });
+    return { success: false, steps, summary: 'Initialization failed during client check' };
   }
+
+  // Helper to probe a table via a count(*) without fetching all data.
+  const tableAvailable = async (table) => {
+    try {
+      const { error } = await supabase.from(table).select('id', { count: 'exact', head: true }).limit(1);
+      if (error) {
+        addStep(`probe:${table}`, 'error', `Table probe failed`, { error: error.message });
+        return false;
+      }
+      addStep(`probe:${table}`, 'success', `Table available`);
+      return true;
+    } catch (e) {
+      addStep(`probe:${table}`, 'error', 'Table probe threw', { error: String(e) });
+      return false;
+    }
+  };
+
+  // Probe required tables
+  const requiredTables = ['categories', 'courses'];
+  for (const t of requiredTables) {
+    // eslint-disable-next-line no-await-in-loop
+    const ok = await tableAvailable(t);
+    if (!ok) {
+      return {
+        success: false,
+        steps,
+        summary: `Initialization failed: required table "${t}" not available or no permission`
+      };
+    }
+  }
+
+  // Seed categories (idempotent)
+  const categories = [
+    { slug: 'web-development', name: 'Web Development' },
+    { slug: 'data-science', name: 'Data Science' },
+    { slug: 'design', name: 'Design' },
+    { slug: 'business', name: 'Business' },
+    { slug: 'ai-ml', name: 'AI & Machine Learning' }
+  ];
 
   try {
-    // Check if categories table is present by attempting a tiny select.
-    const probe = await supabase.from('categories').select('id,name').limit(1);
-    if (probe && probe.error) {
-      logger.warn('Sample data probe failed (likely missing table or denied by RLS)', {
-        err: probe.error.message,
-      });
-      return { skipped: true, reason: 'missing table or denied by RLS' };
-    }
-
-    // Ensure we don't duplicate seeds
-    const { data: existing, error: listErr } = await supabase
+    // Fetch existing slugs to avoid duplicates
+    const { data: existing, error: fetchErr } = await supabase
       .from('categories')
-      .select('name');
+      .select('id, slug');
 
-    if (listErr) {
-      logger.warn('Unable to list categories; skipping seed', { err: listErr.message });
-      return { skipped: true, reason: 'list failed' };
+    if (fetchErr) {
+      addStep('categories:fetch', 'error', 'Failed to fetch existing categories', { error: fetchErr.message });
+      return { success: false, steps, summary: 'Initialization failed while reading categories' };
     }
+    addStep('categories:fetch', 'success', 'Fetched existing categories', { count: existing?.length ?? 0 });
 
-    const have = new Set((existing || []).map((r) => (r.name || '').toLowerCase()));
-    const seeds = ['Development', 'Design', 'Data', 'Marketing', 'Business', 'AI/ML']
-      .filter((n) => !have.has(n.toLowerCase()))
-      .map((name) => ({ name }));
+    const existingSlugs = new Set((existing || []).map((c) => c.slug));
+    const toInsert = categories.filter((c) => !existingSlugs.has(c.slug));
 
-    if (seeds.length === 0) {
-      logger.info('Sample categories already present');
-      return { ok: true, created: 0 };
+    if (toInsert.length === 0) {
+      addStep('categories:seed', 'skipped', 'All categories already present');
+    } else {
+      const { data: ins, error: insErr } = await supabase
+        .from('categories')
+        .insert(toInsert)
+        .select('id, slug');
+
+      if (insErr) {
+        addStep('categories:seed', 'error', 'Failed to insert categories', { error: insErr.message, pending: toInsert.map(c => c.slug) });
+        return { success: false, steps, summary: 'Initialization failed while seeding categories' };
+      }
+      addStep('categories:seed', 'success', 'Inserted new categories', { inserted: ins?.length ?? 0 });
     }
-
-    const { data, error } = await supabase.from('categories').insert(seeds).select('id,name');
-    if (error) {
-      logger.warn('Failed to seed categories', { err: error.message });
-      return { skipped: true, reason: 'insert failed' };
-    }
-
-    logger.info('Seeded sample categories', { count: data?.length || 0 });
-    return { ok: true, created: data?.length || 0 };
   } catch (e) {
-    logger.error('seedSampleCategories unexpected error', { err: e?.message });
-    return { skipped: true, reason: 'unexpected', error: e?.message };
+    addStep('categories:seed', 'error', 'Unexpected error during category seeding', { error: String(e) });
+    return { success: false, steps, summary: 'Initialization failed while seeding categories (exception)' };
   }
+
+  // Seed a sample course (idempotent)
+  const sampleCourse = {
+    slug: 'intro-to-modern-web',
+    title: 'Intro to Modern Web',
+    description: 'Learn the fundamentals of modern web development with hands-on examples.',
+    // Optional fields if your schema supports them:
+    // thumbnail_url, level, language, price, published, etc.
+  };
+
+  try {
+    // Check if course exists
+    const { data: existingCourse, error: courseFetchErr } = await supabase
+      .from('courses')
+      .select('id, slug')
+      .eq('slug', sampleCourse.slug)
+      .limit(1)
+      .maybeSingle();
+
+    if (courseFetchErr) {
+      addStep('course:fetch', 'error', 'Failed to fetch existing course by slug', { error: courseFetchErr.message, slug: sampleCourse.slug });
+      return { success: false, steps, summary: 'Initialization failed while reading courses' };
+    }
+
+    if (existingCourse) {
+      addStep('course:seed', 'skipped', 'Sample course already exists', { slug: sampleCourse.slug, id: existingCourse.id });
+    } else {
+      const { data: inserted, error: courseInsertErr } = await supabase
+        .from('courses')
+        .insert(sampleCourse)
+        .select('id, slug')
+        .maybeSingle();
+
+      if (courseInsertErr) {
+        addStep('course:seed', 'error', 'Failed to insert sample course', { error: courseInsertErr.message, slug: sampleCourse.slug });
+        return { success: false, steps, summary: 'Initialization failed while inserting sample course' };
+      }
+      addStep('course:seed', 'success', 'Inserted sample course', { slug: sampleCourse.slug, id: inserted?.id });
+    }
+  } catch (e) {
+    addStep('course:seed', 'error', 'Unexpected error during course seeding', { error: String(e) });
+    return { success: false, steps, summary: 'Initialization failed while seeding course (exception)' };
+  }
+
+  const success = !steps.some((s) => s.status === 'error');
+  const summary = success ? 'Initialization completed successfully' : 'Initialization completed with errors';
+  return { success, steps, summary };
 }
 
-export default seedSampleCategories;
+/**
+ * PUBLIC_INTERFACE
+ * initSampleData is a convenience alias to initializeSampleData for external imports that
+ * might already reference the previous utility name.
+ */
+// PUBLIC_INTERFACE
+export const initSampleData = initializeSampleData;
+
+export default initializeSampleData;
