@@ -12,6 +12,7 @@ Configure the following environment variables (see `.env.example`):
 - REACT_APP_APP_NAME (optional)
 
 Do not commit `.env`. Ensure your deployment environment sets these variables.
+Note: We do NOT use placeholders in code. You must provide real credentials via `.env`.
 
 ## Client Initialization
 
@@ -20,6 +21,9 @@ Client is created in `src/config/supabaseClient.js` with:
 - `auth.autoRefreshToken = true`
 - `auth.persistSession = true`
 - `auth.detectSessionInUrl = true`
+
+If environment variables are missing, a non-crashing fallback client is returned for local UI development.
+This fallback logs masked diagnostics and no-ops all network calls. Add proper `.env` to enable real connectivity.
 
 The `REACT_APP_SITE_URL` should match your deployed frontend base URL for email magic links and OAuth.
 
@@ -39,4 +43,6 @@ const supabase = getSupabaseClient();
 const { data, error } = await supabase.from('courses').select('*').limit(1);
 ```
 
-A self-test utility is provided: `src/utils/testSupabase.js` (used by App banner).
+Diagnostics utilities:
+- `src/utils/testSupabase.js` provides a self-test used by a lightweight banner in App.
+- `src/utils/initSampleData.js` can seed categories for local development (no-ops if table missing).
